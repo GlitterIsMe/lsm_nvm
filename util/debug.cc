@@ -1,14 +1,4 @@
-#include <stdlib.h>
-#include <stdarg.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <sys/mman.h>
-#include <inttypes.h>
-#include <pthread.h>
+#include "util/debug.h"
 
 //#define DEBUG
 

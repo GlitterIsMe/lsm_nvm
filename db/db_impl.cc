@@ -727,7 +727,9 @@ Status DBImpl::WriteLevel0Table(MemTable* mem, VersionEdit* edit,
 }
 
 void DBImpl::CompactBottomMemTable() {
-
+	// for debug info
+	const uint64_t start_micro = env_->NowMicros();
+	
     mutex_.AssertHeld();
     //NoveLSM: For switching between DRAM and NVM tables
     assert(imm_ != NULL);
@@ -768,6 +770,11 @@ void DBImpl::CompactBottomMemTable() {
     }else {
         RecordBackgroundError(s);
     }
+
+	const uint64_t end_micros = env_->NowMicros();
+
+	DBG_PRINT("start_micros: %lu ,end_micros: %lu ,imm_micros: %lu", 
+			start_micro, end_micros, (end_micros - start_micro));
 }
 
 
@@ -1239,8 +1246,18 @@ Status DBImpl::DoCompactionWork(CompactionState* compact) {
     input = NULL;
 
     CompactionStats stats;
-    stats.micros = env_->NowMicros() - start_micros - imm_micros;
-    for (int which = 0; which < 2; which++) {
+	uint64_t end_micros = env_->NowMicros();
+	stats.micros = end_micros - start_micros - imm_micros
+//    stats.micros = env_->NowMicros() - start_micros - imm_micros;
+
+	// print debug info
+	DBG_PRINT("compact_level: [ %d ], which_0_nums: %d  ,which_1_nums: %d ,start_micros: %lu  ,imm_micros: %lu   end_micros: %lu   stats.micros[ %lu ]", 
+		compact->compaction->level(),
+		compact->compaction->num_input_files(0),
+		compact->compaction->num_input_files(1),
+		start_micros, imm_micros, end_micros, stats.micros);
+
+	for (int which = 0; which < 2; which++) {
         for (int i = 0; i < compact->compaction->num_input_files(which); i++) {
             stats.bytes_read += compact->compaction->input(which, i)->file_size;
         }
