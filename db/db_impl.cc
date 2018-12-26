@@ -727,7 +727,7 @@ Status DBImpl::WriteLevel0Table(MemTable* mem, VersionEdit* edit,
 #ifdef DBG_COMPACTION
 	vector<uint64_t> input;
 	base->NumLevel0Files(input);
-	printf("WriteLevel0Table: Level0-sst-size: ");
+	printf("WriteLevel0Table: Level0-sst-size:%u ", input.size());
 	for (size_t i = 0; i < input.size(); i++) {
 		printf("%lu ", input[i]);
 	}
@@ -794,7 +794,7 @@ void DBImpl::CompactBottomMemTable() {
 	int l0_num = current_->NumFiles(0);
 	vector<uint64_t> input;
 	current_->NumLevel0Files(input);
-	printf("Level0_files: ");
+	printf("Level0_files: %u", input.size());
 	for (int i = 0; i < input.size(); i++) {
 		printf("%lu ", input[i]);
 	}
