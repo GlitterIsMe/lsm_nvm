@@ -1247,7 +1247,7 @@ Status DBImpl::DoCompactionWork(CompactionState* compact) {
 
     CompactionStats stats;
 	uint64_t end_micros = env_->NowMicros();
-	stats.micros = end_micros - start_micros - imm_micros
+	stats.micros = end_micros - start_micros - imm_micros;
 //    stats.micros = env_->NowMicros() - start_micros - imm_micros;
 
 	// print debug info
