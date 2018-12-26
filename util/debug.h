@@ -20,6 +20,7 @@
 #include <inttypes.h>
 #include <pthread.h>
 #include <stdio.h>
+#include <iostream>
 
 
 void DEBUG(const char* format, ... );
@@ -32,7 +33,8 @@ void DEBUG_T(const char* format, ... );
 
 
 #ifdef DBG_COMPACTION
-#define DBG_PRINT(format, a...)		printf("DEBUG:%4d %-30s: " format "\n", __LINE__, __FUNCTION__, ##a)
+#define DBG_PRINT(format, a...)		\
+	printf(" DEBUG:%4d %-30s: " format "\n", __LINE__, __FUNCTION__, ##a)
 #else
 #define DBG_PRINT(format, a...)
 #endif
