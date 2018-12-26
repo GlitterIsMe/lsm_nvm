@@ -250,8 +250,8 @@ public:
             else if (next_report_ < 500000) next_report_ += 50000;
             else                            next_report_ += 100000;
             ;
-            //fprintf(stderr, "... finished %d ops%30s\r", done_, "");
-            //fflush(stderr);
+            fprintf(stderr, "... finished %d ops%30s\r", done_, "");
+            fflush(stderr);
         }
     }
 
@@ -769,10 +769,14 @@ private:
         Status s;
         int64_t bytes = 0;
         int64_t num_written = 0;
-        double finish_last_ = Env::Default()->NowMicros();;
+        double finish_last_ = Env::Default()->NowMicros();
+		double beginning_time_ = finish_last_;
+		double finish_last_10s_ = finish_last_;
         int64_t bytes_last_ = 0;
-	int64_t gb_ = 1024 * 1000 * 1000;
-	int64_t per_gb_num_ = gb_ / value_size_;
+		int64_t bytes_last_10s_ = bytes_last_;
+		int64_t gb_ = 1024 * 1000 * 1000;
+		int64_t per_gb_num_ = gb_ / value_size_;
+		time_t last_ = time(NULL), cur_;
         for (int i = 0; i < num_; i += entries_per_batch_) {
             batch.Clear();
             for (int j = 0; j < entries_per_batch_; j++) {
@@ -793,20 +797,41 @@ private:
             // test
 
            // if ((num_written) % 2000000 == 0) {
-	   if (((num_written + 1) % per_gb_num_) == 0) {
+	        if (((num_written + 1) % per_gb_num_) == 0) {
                 double now = Env::Default()->NowMicros();
                 double time = now - finish_last_;
+				double sum_time = now - beginning_time_;
                 int64_t ebytes = bytes - bytes_last_;
-                fprintf(stdout, "now= %f  i=%12ld : %11.3f micros/op speed = %.1lf MB/s time = %lf micros\n",
+                fprintf(stdout, "now= %f  i=%12ld : %11.3f micros/op speed = %.1lf MB/s time = %lf micros, avg_speed = %.1lf MB/s\n",
                         now,
-                        num_written, time / 8000000,
+                        num_written,
+                        time / per_gb_num_,
                         ((ebytes / 1048576.8) * 1000000) / time,
-                        time);
+                        time,
+                        ((bytes / 1048576.8) * 1000000) / sum_time);
                 //PrintStats("rocksdb.stats");
                 fflush(stdout);
                 finish_last_ = now;
                 bytes_last_ = bytes;
             }
+
+			cur_ = time(NULL);
+			if ((cur_ - last_) >= 10) {
+				last_ = cur_;
+				double now = Env::Default()->NowMicros();
+				double time = now - finish_last_10s_;
+				int64_t ebytes = bytes - bytes_last_10s_;
+
+				fprintf(stdout, "every_10s,now= %f i=%12ld : %11.3f micros/op speed = %.1lf MB/s time = %lf\n",
+						now,
+						num_written,
+						time / per_gb_num_,
+						((ebytes / 1048576.8) * 1000000) / time,
+						time);
+				fflush(stdout);
+				finish_last_10s_ = now;
+				bytes_last_10s_ = bytes;
+			}
             //
 
 #if defined(_SIMULATE_FAILURE)
