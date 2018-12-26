@@ -109,6 +109,13 @@ class Version {
                                  const Slice& largest_user_key);
 
   int NumFiles(int level) const { return files_[level].size(); }
+  void NumLevel0Files(std::vector<uint64_t> &input) {
+  	  std::vector<FileMetaData*> f_vect = files_[0];
+  	  for (size_t i = 0; i < files_[0].size(); i++) {
+	  	  FileMetaData* f = f_vect[i];
+		  input.push_back(f->file_size);
+	  }
+  }
 
   // Return a human readable string that describes this version's contents.
   std::string DebugString() const;

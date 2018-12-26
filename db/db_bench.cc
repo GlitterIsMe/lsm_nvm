@@ -825,7 +825,7 @@ private:
 				fprintf(stdout, "every_10s,now= %f i=%12ld : %11.3f micros/op speed = %.1lf MB/s time = %lf\n",
 						now,
 						num_written,
-						time / (bytes / (16 + value_size_)),
+						time / (ebytes / (16 + value_size_)),
 						((ebytes / 1048576.8) * 1000000) / time,
 						time);
 				fflush(stdout);

@@ -723,6 +723,16 @@ Status DBImpl::WriteLevel0Table(MemTable* mem, VersionEdit* edit,
     stats.micros = env_->NowMicros() - start_micros;
     stats.bytes_written = meta.file_size;
     stats_[level].Add(stats);
+
+#ifdef DBG_COMPACTION
+	vector<uint64_t> input;
+	base->NumLevel0Files(input);
+	printf("WriteLevel0Table: Level0-sst-size: ");
+	for (size_t i = 0; i < input.size(); i++) {
+		printf("%lu ", input[i]);
+	}
+	printf("\n");
+#endif
     return s;
 }
 
@@ -775,6 +785,21 @@ void DBImpl::CompactBottomMemTable() {
 
 	DBG_PRINT("start_micros: %lu ,end_micros: %lu ,imm_micros: %lu", 
 			start_micro, end_micros, (end_micros - start_micro));
+	Version* current_ = versions_->current();
+	DBG_PRINT("current_levels: [%u] [%u] [%u] [%u] [%u] [%u] [%u]", 
+	current_->NumFiles(0), current_->NumFiles(1), current_->NumFiles(2),
+	current_->NumFiles(3), current_->NumFiles(4), current_->NumFiles(5),
+	current_->NumFiles(6));
+#ifdef DBG_COMPACTION
+	int l0_num = current_->NumFiles(0);
+	vector<uint64_t> input;
+	current_->NumLevel0Files(input);
+	printf("Level0_files: ");
+	for (int i = 0; i < input.size(); i++) {
+		printf("%lu ", input[i]);
+	}
+	printf("\n");
+#endif
 }
 
 
